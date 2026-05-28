@@ -11,10 +11,11 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 const string politicaCors = "PermitirTudo";
+var provider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
 var connectionString = builder.Configuration.GetConnectionString("ConexaoPadrao")
     ?? "Data Source=colorado.db";
 
-builder.Services.AdicionarInfraestrutura(connectionString);
+builder.Services.AdicionarInfraestrutura(provider, connectionString);
 builder.Services.AdicionarAplicacao();
 
 builder.Services.AddControllers();
@@ -55,11 +56,11 @@ builder.Services.AddSwaggerGen(opcoes =>
 
 var app = builder.Build();
 
-// Aplica as migrations pendentes no startup para a API subir pronta para uso.
+// Prepara o banco no startup (migrations no SQL Server, schema no SQLite) para subir pronto.
 using (var escopo = app.Services.CreateScope())
 {
     var contexto = escopo.ServiceProvider.GetRequiredService<ColoradoDbContext>();
-    contexto.Database.Migrate();
+    InicializadorBanco.Inicializar(contexto, provider);
 }
 
 app.UseMiddleware<MiddlewareTratamentoExcecao>();
