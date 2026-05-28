@@ -6,16 +6,19 @@ using Colorado.Dominio.Entidades;
 using Colorado.Dominio.Excecoes;
 using Colorado.Dominio.Interfaces;
 using Colorado.Dominio.Paginacao;
+using FluentValidation;
 
 namespace Colorado.Aplicacao.Servicos;
 
 public class ClienteServico : IClienteServico
 {
     private readonly IUnitOfWork _uow;
+    private readonly IValidator<SalvarClienteDto> _validator;
 
-    public ClienteServico(IUnitOfWork uow)
+    public ClienteServico(IUnitOfWork uow, IValidator<SalvarClienteDto> validator)
     {
         _uow = uow;
+        _validator = validator;
     }
 
     public async Task<ResultadoPaginado<ClienteDto>> ListarAsync(string? nome, string? documento,
@@ -38,6 +41,7 @@ public class ClienteServico : IClienteServico
 
     public async Task<ClienteDto> CriarAsync(SalvarClienteDto dto, string usuario)
     {
+        await ValidarAsync(dto);
         var tipoPessoa = ClienteMapeador.ConverterTipoPessoa(dto.TipoPessoa);
 
         if (await _uow.Clientes.ExisteDocumentoAsync(dto.Documento))
@@ -57,6 +61,8 @@ public class ClienteServico : IClienteServico
 
     public async Task AtualizarAsync(int codigoCliente, SalvarClienteDto dto, string usuario)
     {
+        await ValidarAsync(dto);
+
         var cliente = await _uow.Clientes.ObterComTelefonesAsync(codigoCliente);
         if (cliente is null)
             throw new NaoEncontradoException($"Cliente {codigoCliente} nao encontrado.");
@@ -85,6 +91,13 @@ public class ClienteServico : IClienteServico
 
         _uow.Clientes.Remover(cliente);
         await _uow.CommitAsync();
+    }
+
+    private async Task ValidarAsync(SalvarClienteDto dto)
+    {
+        var resultado = await _validator.ValidateAsync(dto);
+        if (!resultado.IsValid)
+            throw new ValidacaoException(resultado.Errors.Select(e => e.ErrorMessage));
     }
 
     private async Task AdicionarTelefonesAsync(Cliente cliente, List<SalvarTelefoneDto> telefones, string usuario)

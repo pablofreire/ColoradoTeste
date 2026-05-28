@@ -16,6 +16,11 @@ public abstract class ControladorBase : Controller
             var dados = await acao();
             return Json(new RespostaJson { Sucesso = true, Dados = dados, Mensagem = mensagemSucesso });
         }
+        catch (ValidacaoException ex)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return Json(new RespostaJson { Sucesso = false, Mensagem = string.Join(" ", ex.Erros) });
+        }
         catch (DominioException ex)
         {
             Response.StatusCode = StatusCodes.Status400BadRequest;

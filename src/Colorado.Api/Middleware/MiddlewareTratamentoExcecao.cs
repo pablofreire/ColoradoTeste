@@ -24,6 +24,10 @@ public class MiddlewareTratamentoExcecao
         {
             await _proximo(contexto);
         }
+        catch (ValidacaoException ex)
+        {
+            await Responder(contexto, StatusCodes.Status400BadRequest, ex.Message, ex.Erros);
+        }
         catch (DominioException ex)
         {
             await Responder(contexto, StatusCodes.Status400BadRequest, ex.Message);
@@ -40,12 +44,13 @@ public class MiddlewareTratamentoExcecao
         }
     }
 
-    private static async Task Responder(HttpContext contexto, int statusCode, string mensagem)
+    private static async Task Responder(HttpContext contexto, int statusCode, string mensagem,
+        IEnumerable<string>? erros = null)
     {
         contexto.Response.ContentType = "application/json";
         contexto.Response.StatusCode = statusCode;
 
-        var corpo = RespostaApi.Falha(mensagem);
+        var corpo = RespostaApi.Falha(mensagem, erros);
         var opcoes = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         await contexto.Response.WriteAsync(JsonSerializer.Serialize(corpo, opcoes));
