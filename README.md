@@ -81,9 +81,14 @@ As migrations sao aplicadas no startup da aplicacao (com retry enquanto o SQL Se
 
 ## Testes
 
-Projeto de testes unitarios em `tests/Colorado.Testes.Unitarios` (xUnit + NSubstitute +
-FluentAssertions), cobrindo a validacao de CPF/CNPJ, os validators de FluentValidation e as
-regras dos serviços (documento duplicado, tipo de telefone em uso, etc).
+Testes automatizados (xUnit + NSubstitute + FluentAssertions), um projeto por camada sob
+`tests/`:
+
+- `Colorado.Dominio.Testes` - entidades (invariantes, comportamento) e validacao de CPF/CNPJ.
+- `Colorado.Aplicacao.Testes` - validators FluentValidation, mapeadores e fluxos dos serviços.
+- `Colorado.Infraestrutura.Testes` - repositorios sobre SQLite in-memory (filtros, paginacao,
+  include, chave composta e seed).
+- `Colorado.Api.Testes` / `Colorado.Web.Testes` - controllers com serviços mockados.
 
 ```
 dotnet test
@@ -102,7 +107,11 @@ src/
   Colorado.Api/             Web API RESTful + Swagger + middleware de excecao
   Colorado.Web/             Web App MVC (Razor + Bootstrap 5 + JavaScript puro)
 tests/
-  Colorado.Testes.Unitarios/  Testes de dominio e aplicacao
+  Colorado.Dominio.Testes/        Testes de entidades e validacoes
+  Colorado.Aplicacao.Testes/      Testes de validators, mapeadores e serviços
+  Colorado.Infraestrutura.Testes/ Testes de repositorios (SQLite in-memory)
+  Colorado.Api.Testes/            Testes de controllers da API
+  Colorado.Web.Testes/            Testes de controllers do MVC
 ```
 
 ## Endpoints da API
