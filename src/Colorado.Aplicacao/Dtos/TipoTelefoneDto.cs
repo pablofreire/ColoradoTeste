@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Colorado.Aplicacao.Dtos;
 
 public class TipoTelefoneDto
@@ -10,5 +12,7 @@ public class TipoTelefoneDto
 
 public class SalvarTipoTelefoneDto
 {
+    [Required(ErrorMessage = "A descricao e obrigatoria.")]
+    [StringLength(50)]
     public string DescricaoTipoTelefone { get; set; } = string.Empty;
 }
