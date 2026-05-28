@@ -20,9 +20,9 @@ public class ClienteRepositorio : RepositorioBase<Cliente>, IClienteRepositorio
 
         if (!string.IsNullOrWhiteSpace(nome))
         {
-            var termo = nome.Trim();
-            consulta = consulta.Where(c => c.RazaoSocial.Contains(termo)
-                || c.NomeFantasia.Contains(termo));
+            var termo = nome.Trim().ToLower();
+            consulta = consulta.Where(c => c.RazaoSocial.ToLower().Contains(termo)
+                || c.NomeFantasia.ToLower().Contains(termo));
         }
 
         if (!string.IsNullOrWhiteSpace(documento))
