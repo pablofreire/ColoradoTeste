@@ -16,16 +16,26 @@ A API e o Web App sao camadas de apresentacao independentes que consomem a mesma
 Aplicacao. O Web App nao chama a API por HTTP: ele usa a Aplicacao diretamente, o que evita
 um salto de rede desnecessario para uma aplicacao que roda no mesmo processo.
 
+Validacao de input com **FluentValidation** nos serviços de aplicacao (vale para as duas
+apresentacoes). Regras de negocio e invariantes ficam no dominio.
+
 ## Pre-requisitos
 
 - .NET SDK 6.0 ou superior
-- (Opcional) ferramenta `dotnet-ef` para gerar/aplicar migrations manualmente:
-  `dotnet tool install --global dotnet-ef --version 6.*`
+- (Opcional) Docker + Docker Compose, para subir tudo com SQL Server
+- (Opcional) ferramenta `dotnet-ef`: `dotnet tool install --global dotnet-ef --version 6.*`
 
-O banco padrao e **SQLite** (arquivo `colorado.db`), criado automaticamente no primeiro
-start de cada aplicacao. Nao e necessario instalar nenhum servidor de banco.
+## Banco de dados
 
-## Como rodar
+O provider e escolhido pela chave de configuracao `DatabaseProvider`:
+
+- **`Sqlite`** (padrao no dev local) - arquivo `colorado.db` criado no startup. Sem instalacao.
+- **`SqlServer`** (usado no Docker) - migrations aplicadas no startup.
+
+A connection string fica em `ConnectionStrings:ConexaoPadrao`. Tudo isolado em
+`InfraestruturaServiceCollectionExtensions.AdicionarInfraestrutura`.
+
+## Como rodar (local, SQLite)
 
 Na raiz da solucao (`ColoradoTeste.sln`):
 
@@ -46,24 +56,53 @@ Web App MVC:
 dotnet run --project src/Colorado.Web
 ```
 
-As migrations sao aplicadas automaticamente no startup de cada aplicacao. Para recriar o
-banco manualmente (os comandos `dotnet ef` rodam sobre o projeto de Infraestrutura, onde
-ficam as migrations e a factory de design-time):
+O banco e preparado automaticamente no startup. As migrations sao versionadas para SQL Server;
+para gera-las/aplica-las manualmente (precisa de um SQL Server acessivel - veja Docker abaixo):
 
 ```
-dotnet ef database drop -f --project src/Colorado.Infraestrutura
 dotnet ef database update --project src/Colorado.Infraestrutura
 ```
 
-## Estrutura de pastas
+## Como rodar com Docker (SQL Server)
+
+Na raiz `Code/`, com Docker em execucao:
+
+```
+docker-compose up --build
+```
+
+Sobe tres containers: `sqlserver`, `api` e `web`, todos apontando para o mesmo banco
+(compartilham os dados). Apos subir:
+
+- API + Swagger: http://localhost:5000/swagger
+- Web App MVC: http://localhost:5002
+
+As migrations sao aplicadas no startup da aplicacao (com retry enquanto o SQL Server fica pronto).
+
+## Testes
+
+Projeto de testes unitarios em `tests/Colorado.Testes.Unitarios` (xUnit + NSubstitute +
+FluentAssertions), cobrindo a validacao de CPF/CNPJ, os validators de FluentValidation e as
+regras dos serviços (documento duplicado, tipo de telefone em uso, etc).
+
+```
+dotnet test
+```
+
+## Estrutura
+
+No `.sln` os projetos sao agrupados por camada (pastas de solution `01-Presentation`,
+`02-Application`, `03-Domain`, `04-Infrastructure`, `Tests`). No disco:
 
 ```
 src/
   Colorado.Dominio/         Entidades, enums, validacoes, interfaces e excecoes de dominio
-  Colorado.Aplicacao/       Servicos, DTOs, mapeamentos manuais e interfaces de servico
+  Colorado.Aplicacao/       Servicos, DTOs, mapeamentos manuais, validators e interfaces
   Colorado.Infraestrutura/  DbContext, configuracoes Fluent API, repositorios, UoW e migrations
   Colorado.Api/             Web API RESTful + Swagger + middleware de excecao
   Colorado.Web/             Web App MVC (Razor + Bootstrap 5 + JavaScript puro)
+tests/
+  Colorado.Testes.Unitarios/  Testes de dominio e aplicacao
 ```
 
 ## Endpoints da API
@@ -85,15 +124,9 @@ Tipos de telefone:
 - `DELETE /api/tipos-telefone/{codigo}`
 
 Todas as respostas usam um envelope padrao (`sucesso`, `mensagem`, `dados`, `erros`) e os
-status HTTP adequados (200, 201, 204, 400, 404, 500). Erros de regra de negocio retornam 400,
-recursos inexistentes retornam 404 e excecoes nao tratadas retornam 500, sempre via middleware.
-
-## Trocando o banco para SQL Server / LocalDB
-
-A escolha do provedor fica isolada em `InfraestruturaServiceCollectionExtensions`. Para usar
-LocalDB, troque `UseSqlite` por `UseSqlServer`, ajuste a connection string em
-`appsettings.json` (ex.: `Server=(localdb)\\MSSQLLocalDB;Database=Colorado;Trusted_Connection=True;`)
-e gere as migrations novamente para o novo provedor.
+status HTTP adequados (200, 201, 204, 400, 404, 500). Falhas de validacao e regra de negocio
+retornam 400 (com a lista de erros), recursos inexistentes 404 e excecoes nao tratadas 500,
+sempre via middleware.
 
 ## Observacoes finais
 
@@ -101,7 +134,7 @@ Optei por nao usar AutoMapper: para um CRUD desse tamanho o mapeamento manual fi
 explicito, mais facil de depurar e tem zero overhead. Pelo mesmo motivo nao adotei MediatR -
 os servicos de aplicacao resolvem bem o fluxo sem a indirecao.
 
-A validacao de CPF/CNPJ roda no dominio (digitos verificadores) e e repetida no front em
-JavaScript apenas para dar retorno imediato ao usuario. O SQLite foi escolhido por ser
-gratuito, sem instalacao e portavel entre maquinas; a troca para SQL Server e direta, como
-descrito acima.
+A validacao de input usa FluentValidation nos serviços, reaproveitando o validador de CPF/CNPJ
+do dominio (digitos verificadores); o front repete a checagem em JavaScript apenas para dar
+retorno imediato ao usuario. SQLite no dev local mantem o atrito baixo (zero instalacao) e o
+Docker sobe SQL Server para um ambiente mais proximo de producao - a troca e so configuracao.
