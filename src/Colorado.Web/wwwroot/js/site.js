@@ -1,25 +1,6 @@
-// Funcoes compartilhadas entre as telas (requisicoes, toasts e validacao de documento).
+// Helpers compartilhados pelas telas: toasts, chamadas ao servidor e validacao de documento.
 
-// #region [ REQUISICOES HTTP ]
-const enviarRequisicao = async (url, metodo = 'GET', corpo = null) => {
-    const opcoes = { method: metodo, headers: { 'Content-Type': 'application/json' } };
-    if (corpo !== null) {
-        opcoes.body = JSON.stringify(corpo);
-    }
-
-    const resposta = await fetch(url, opcoes);
-    let dados = null;
-    try {
-        dados = await resposta.json();
-    } catch {
-        dados = null;
-    }
-
-    return { ok: resposta.ok, status: resposta.status, dados: dados };
-};
-// #endregion
-
-// #region [ TOASTS ]
+// Mostra um toast de feedback no canto da tela.
 const exibirToast = (mensagem, tipo = 'success') => {
     const container = document.getElementById('containerToast');
     if (!container) {
@@ -42,12 +23,49 @@ const exibirToast = (mensagem, tipo = 'success') => {
     toast.show();
     elemento.addEventListener('hidden.bs.toast', () => elemento.remove());
 };
-// #endregion
 
-// #region [ VALIDACAO DE DOCUMENTO ]
+// GET que devolve o HTML de uma partial (tabela ou formulario).
+const obterParcial = async (url) => {
+    const resposta = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+    return { ok: resposta.ok, status: resposta.status, html: await resposta.text() };
+};
+
+// POST do formulario. O servidor responde JSON em caso de sucesso ou o HTML do
+// formulario (com o resumo de validacao) em caso de erro.
+const enviarFormulario = async (url, formData) => {
+    const resposta = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    const tipo = resposta.headers.get('content-type') || '';
+    if (tipo.includes('application/json')) {
+        return { ok: resposta.ok, json: await resposta.json() };
+    }
+    return { ok: resposta.ok, html: await resposta.text() };
+};
+
+// POST simples (ex.: excluir) que devolve JSON.
+const postarJson = async (url, dados) => {
+    const resposta = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(dados)
+    });
+
+    let json = null;
+    try {
+        json = await resposta.json();
+    } catch {
+        json = null;
+    }
+    return { ok: resposta.ok, json };
+};
+
 const apenasNumeros = (valor) => (valor || '').replace(/\D/g, '');
 
-// CPF: 11 digitos com os dois digitos verificadores conferidos manualmente.
+// CPF: 11 digitos com os dois digitos verificadores conferidos.
 const validarCpf = (valor) => {
     const cpf = apenasNumeros(valor);
     if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
@@ -89,7 +107,5 @@ const validarCnpj = (valor) => {
     return primeiro === parseInt(cnpj[12], 10) && segundo === parseInt(cnpj[13], 10);
 };
 
-const validarDocumento = (tipoPessoa, documento) => {
-    return tipoPessoa === 'F' ? validarCpf(documento) : validarCnpj(documento);
-};
-// #endregion
+const validarDocumento = (tipoPessoa, documento) =>
+    tipoPessoa === 'F' ? validarCpf(documento) : validarCnpj(documento);
