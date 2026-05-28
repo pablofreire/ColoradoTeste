@@ -2,7 +2,7 @@ using Colorado.Dominio.Validacoes;
 using FluentAssertions;
 using Xunit;
 
-namespace Colorado.Testes.Unitarios.Dominio;
+namespace Colorado.Dominio.Testes;
 
 public class DocumentoTests
 {

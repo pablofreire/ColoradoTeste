@@ -3,7 +3,7 @@ using Colorado.Aplicacao.Validacoes;
 using FluentAssertions;
 using Xunit;
 
-namespace Colorado.Testes.Unitarios.Aplicacao;
+namespace Colorado.Aplicacao.Testes;
 
 public class SalvarClienteValidatorTests
 {
@@ -29,6 +29,15 @@ public class SalvarClienteValidatorTests
     {
         var dto = ClienteValido();
         dto.RazaoSocial = "";
+
+        _validator.Validate(dto).IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Validar_TipoPessoaInvalido_Invalido()
+    {
+        var dto = ClienteValido();
+        dto.TipoPessoa = "X";
 
         _validator.Validate(dto).IsValid.Should().BeFalse();
     }
