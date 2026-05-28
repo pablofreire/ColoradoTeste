@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Clientes";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Clientes</h1>
+    <button type="button" class="btn btn-primary" id="idClienteNovo">
+        <i class="bi bi-plus-lg"></i> Novo cliente
+    </button>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="idClienteFiltroNome">Nome / Razao social</label>
+                <input type="text" class="form-control" id="idClienteFiltroNome" placeholder="Buscar por nome" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="idClienteFiltroDocumento">Documento</label>
+                <input type="text" class="form-control" id="idClienteFiltroDocumento" placeholder="CPF ou CNPJ" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary flex-grow-1" id="idClientePesquisar">Pesquisar</button>
+                <button class="btn btn-outline-secondary" id="idClienteLimpar">Limpar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 80px;">Codigo</th>
+                    <th>Razao social</th>
+                    <th>Nome fantasia</th>
+                    <th style="width: 70px;">Tipo</th>
+                    <th>Documento</th>
+                    <th>Cidade/UF</th>
+                    <th class="tabela-acoes text-end">Acoes</th>
+                </tr>
+            </thead>
+            <tbody id="idClienteTabela">
+                <tr><td colspan="7" class="text-center text-muted py-4">Carregando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between align-items-center">
+        <small class="text-muted" id="idClienteResumo"></small>
+        <div class="btn-group">
+            <button class="btn btn-sm btn-outline-secondary" id="idClienteAnterior">Anterior</button>
+            <button class="btn btn-sm btn-outline-secondary" id="idClienteProxima">Proxima</button>
+        </div>
+    </div>
+</div>
+
+<partial name="_ModalCliente" />
+
+@section Scripts {
+    <script src="~/js/clientes.js" asp-append-version="true"></script>
+    <script>document.addEventListener('DOMContentLoaded', clienteInicializar);</script>
+}

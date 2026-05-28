@@ -1,0 +1,105 @@
+<div class="modal fade" id="idClienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="idClienteFormulario" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="idClienteModalTitulo">Novo cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="idClienteCodigo" />
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label" for="idClienteRazaoSocial">Razao social</label>
+                            <input type="text" class="form-control" id="idClienteRazaoSocial" maxlength="200" />
+                            <div class="invalid-feedback">Informe a razao social.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="idClienteNomeFantasia">Nome fantasia</label>
+                            <input type="text" class="form-control" id="idClienteNomeFantasia" maxlength="200" />
+                            <div class="invalid-feedback">Informe o nome fantasia.</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="idClienteTipoPessoa">Tipo de pessoa</label>
+                            <select class="form-select" id="idClienteTipoPessoa">
+                                <option value="J">Juridica</option>
+                                <option value="F">Fisica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="idClienteDocumento">Documento (CPF/CNPJ)</label>
+                            <input type="text" class="form-control" id="idClienteDocumento" maxlength="20" />
+                            <div class="invalid-feedback">Documento invalido para o tipo de pessoa.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="idClienteCep">CEP</label>
+                            <input type="text" class="form-control" id="idClienteCep" maxlength="9" />
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" for="idClienteEndereco">Endereco</label>
+                            <input type="text" class="form-control" id="idClienteEndereco" maxlength="200" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="idClienteComplemento">Complemento</label>
+                            <input type="text" class="form-control" id="idClienteComplemento" maxlength="100" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="idClienteBairro">Bairro</label>
+                            <input type="text" class="form-control" id="idClienteBairro" maxlength="100" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="idClienteCidade">Cidade</label>
+                            <input type="text" class="form-control" id="idClienteCidade" maxlength="100" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="idClienteUf">UF</label>
+                            <input type="text" class="form-control text-uppercase" id="idClienteUf" maxlength="2" />
+                            <div class="invalid-feedback">UF.</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <h6>Telefones</h6>
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label" for="idTelefoneNumero">Numero</label>
+                            <input type="text" class="form-control" id="idTelefoneNumero" maxlength="20" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="idTelefoneTipo">Tipo</label>
+                            <select class="form-select" id="idTelefoneTipo"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="idTelefoneOperadora">Operadora</label>
+                            <input type="text" class="form-control" id="idTelefoneOperadora" maxlength="50" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-primary w-100" id="idTelefoneAdicionar">Adicionar</button>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm mt-2 mb-0">
+                        <thead>
+                            <tr>
+                                <th>Numero</th>
+                                <th>Tipo</th>
+                                <th>Operadora</th>
+                                <th class="text-end"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="idTelefoneLista">
+                            <tr><td colspan="4" class="text-center text-muted">Nenhum telefone adicionado.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="idClienteSalvar">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

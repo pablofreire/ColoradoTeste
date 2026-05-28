@@ -1,8 +1,29 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-4">
+    <h1 class="h3 mb-1">Cadastro de Clientes</h1>
+    <p class="text-muted">Desafio Grupo Colorado - gestao de clientes, telefones e tipos de telefone.</p>
+
+    <div class="row g-3 mt-2">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes</h5>
+                    <p class="card-text text-muted">Cadastro completo com endereco e telefones.</p>
+                    <a asp-controller="Cliente" asp-action="Index" class="btn btn-primary">Abrir clientes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Tipos de Telefone</h5>
+                    <p class="card-text text-muted">RESIDENCIAL, COMERCIAL, WHATSAPP, CELULAR e outros.</p>
+                    <a asp-controller="TipoTelefone" asp-action="Index" class="btn btn-outline-primary">Abrir tipos</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

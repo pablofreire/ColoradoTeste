@@ -1,0 +1,25 @@
+<div class="modal fade" id="idTipoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="idTipoFormulario" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="idTipoModalTitulo">Novo tipo de telefone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="idTipoCodigo" />
+                    <div class="mb-2">
+                        <label class="form-label" for="idTipoDescricao">Descricao</label>
+                        <input type="text" class="form-control" id="idTipoDescricao" maxlength="50"
+                               placeholder="Ex.: RESIDENCIAL" />
+                        <div class="invalid-feedback">Informe a descricao do tipo.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="idTipoSalvar">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

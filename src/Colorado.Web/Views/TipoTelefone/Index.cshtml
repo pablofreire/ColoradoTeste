@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Tipos de Telefone";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Tipos de Telefone</h1>
+    <button type="button" class="btn btn-primary" id="idTipoNovo">
+        <i class="bi bi-plus-lg"></i> Novo tipo
+    </button>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 90px;">Codigo</th>
+                    <th>Descricao</th>
+                    <th class="tabela-acoes text-end">Acoes</th>
+                </tr>
+            </thead>
+            <tbody id="idTipoTabela">
+                <tr><td colspan="3" class="text-center text-muted py-4">Carregando...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<partial name="_ModalTipoTelefone" />
+
+@section Scripts {
+    <script src="~/js/tipos-telefone.js" asp-append-version="true"></script>
+    <script>document.addEventListener('DOMContentLoaded', tipoTelefoneInicializar);</script>
+}
