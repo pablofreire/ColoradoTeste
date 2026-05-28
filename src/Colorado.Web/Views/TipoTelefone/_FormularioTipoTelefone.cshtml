@@ -1,18 +1,23 @@
+@model SalvarTipoTelefoneViewModel
+
 <div class="modal fade" id="idTipoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="idTipoFormulario" novalidate>
+            <form id="idTipoForm">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="idTipoModalTitulo">Novo tipo de telefone</h5>
+                    <h5 class="modal-title">@(Model.EhEdicao ? "Editar tipo de telefone" : "Novo tipo de telefone")</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="idTipoCodigo" />
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+                    }
+
+                    <input type="hidden" asp-for="Codigo" />
                     <div class="mb-2">
-                        <label class="form-label" for="idTipoDescricao">Descricao</label>
-                        <input type="text" class="form-control" id="idTipoDescricao" maxlength="50"
-                               placeholder="Ex.: RESIDENCIAL" />
-                        <div class="invalid-feedback">Informe a descricao do tipo.</div>
+                        <label class="form-label" asp-for="Descricao">Descricao</label>
+                        <input class="form-control" asp-for="Descricao" maxlength="50" placeholder="Ex.: RESIDENCIAL" />
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -1,10 +1,14 @@
-using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Excecoes;
 using Colorado.Aplicacao.Interfaces;
+using Colorado.Dominio.Excecoes;
+using Colorado.Web.Mapeamentos.TipoTelefone;
+using Colorado.Web.Models;
+using Colorado.Web.Models.TipoTelefone;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Colorado.Web.Controllers;
 
-public class TipoTelefoneController : ControladorBase
+public class TipoTelefoneController : Controller
 {
     private const string UsuarioWeb = "web";
 
@@ -21,45 +25,82 @@ public class TipoTelefoneController : ControladorBase
     }
 
     [HttpGet]
-    public Task<JsonResult> Listar()
+    public async Task<IActionResult> Listar()
     {
-        return ExecutarAsync(async () => await _servico.ListarAsync());
+        var tipos = await _servico.ListarAsync();
+        return PartialView("_TabelaTiposTelefone", TipoTelefoneViewModelMapeador.ParaLista(tipos));
     }
 
     [HttpGet]
-    public Task<JsonResult> Obter(int codigo)
+    public async Task<IActionResult> Formulario(int? codigo)
     {
-        return ExecutarAsync(async () =>
+        SalvarTipoTelefoneViewModel vm;
+        if (codigo.HasValue)
         {
-            var tipo = await _servico.ObterPorIdAsync(codigo);
-            return tipo ?? throw new Aplicacao.Excecoes.NaoEncontradoException($"Tipo de telefone {codigo} nao encontrado.");
-        });
-    }
+            var dto = await _servico.ObterPorIdAsync(codigo.Value);
+            if (dto is null)
+                return NotFound();
 
-    [HttpPost]
-    public Task<JsonResult> Criar([FromBody] SalvarTipoTelefoneDto dto)
-    {
-        return ExecutarAsync(async () => await _servico.CriarAsync(dto, UsuarioWeb),
-            "Tipo de telefone salvo com sucesso.");
-    }
-
-    [HttpPost]
-    public Task<JsonResult> Atualizar(int codigo, [FromBody] SalvarTipoTelefoneDto dto)
-    {
-        return ExecutarAsync(async () =>
+            vm = TipoTelefoneViewModelMapeador.ParaFormulario(dto);
+        }
+        else
         {
-            await _servico.AtualizarAsync(codigo, dto);
-            return (object?)null;
-        }, "Tipo de telefone atualizado com sucesso.");
+            vm = new SalvarTipoTelefoneViewModel();
+        }
+
+        return PartialView("_FormularioTipoTelefone", vm);
     }
 
     [HttpPost]
-    public Task<JsonResult> Excluir(int codigo)
+    public async Task<IActionResult> Salvar(SalvarTipoTelefoneViewModel vm)
     {
-        return ExecutarAsync(async () =>
+        try
+        {
+            var dto = TipoTelefoneViewModelMapeador.ParaDto(vm);
+
+            if (vm.EhEdicao)
+                await _servico.AtualizarAsync(vm.Codigo!.Value, dto);
+            else
+                await _servico.CriarAsync(dto, UsuarioWeb);
+
+            return Json(new RespostaJson { Sucesso = true, Mensagem = "Tipo de telefone salvo com sucesso." });
+        }
+        catch (ValidacaoException ex)
+        {
+            foreach (var erro in ex.Erros)
+                ModelState.AddModelError(string.Empty, erro);
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return PartialView("_FormularioTipoTelefone", vm);
+        }
+        catch (DominioException ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return PartialView("_FormularioTipoTelefone", vm);
+        }
+        catch (NaoEncontradoException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Excluir(int codigo)
+    {
+        try
         {
             await _servico.RemoverAsync(codigo);
-            return (object?)null;
-        }, "Tipo de telefone removido com sucesso.");
+            return Json(new RespostaJson { Sucesso = true, Mensagem = "Tipo de telefone removido com sucesso." });
+        }
+        catch (DominioException ex)
+        {
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return Json(new RespostaJson { Sucesso = false, Mensagem = ex.Message });
+        }
+        catch (NaoEncontradoException ex)
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
+            return Json(new RespostaJson { Sucesso = false, Mensagem = ex.Message });
+        }
     }
 }

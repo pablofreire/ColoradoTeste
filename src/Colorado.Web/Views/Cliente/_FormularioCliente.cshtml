@@ -1,0 +1,129 @@
+@model SalvarClienteViewModel
+
+@functions {
+    string OpcoesTipo(int? selecionado)
+    {
+        var html = new System.Text.StringBuilder();
+        foreach (var t in Model.TiposDisponiveis)
+        {
+            var sel = selecionado == t.Codigo ? " selected" : "";
+            html.Append($"<option value=\"{t.Codigo}\"{sel}>{t.Descricao}</option>");
+        }
+        return html.ToString();
+    }
+}
+
+<div class="modal fade" id="idClienteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="idClienteForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(Model.EhEdicao ? "Editar cliente" : "Novo cliente")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
+                    }
+
+                    <input type="hidden" asp-for="Codigo" />
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label" asp-for="RazaoSocial">Razao social</label>
+                            <input class="form-control" asp-for="RazaoSocial" maxlength="200" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" asp-for="NomeFantasia">Nome fantasia</label>
+                            <input class="form-control" asp-for="NomeFantasia" maxlength="200" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" asp-for="TipoPessoa">Tipo de pessoa</label>
+                            <select class="form-select" asp-for="TipoPessoa">
+                                <option value="J">Juridica</option>
+                                <option value="F">Fisica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" asp-for="Documento">Documento (CPF/CNPJ)</label>
+                            <input class="form-control" asp-for="Documento" maxlength="20" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" asp-for="Cep">CEP</label>
+                            <input class="form-control" asp-for="Cep" maxlength="9" />
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label" asp-for="Endereco">Endereco</label>
+                            <input class="form-control" asp-for="Endereco" maxlength="200" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" asp-for="Complemento">Complemento</label>
+                            <input class="form-control" asp-for="Complemento" maxlength="100" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" asp-for="Bairro">Bairro</label>
+                            <input class="form-control" asp-for="Bairro" maxlength="100" />
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" asp-for="Cidade">Cidade</label>
+                            <input class="form-control" asp-for="Cidade" maxlength="100" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" asp-for="Uf">UF</label>
+                            <input class="form-control text-uppercase" asp-for="Uf" maxlength="2" />
+                        </div>
+                    </div>
+
+                    <hr class="my-3" />
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Telefones</h6>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="idTelefoneAdicionar">Adicionar telefone</button>
+                    </div>
+
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Numero</th>
+                                <th style="width: 30%;">Tipo</th>
+                                <th>Operadora</th>
+                                <th style="width: 1%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="idTelefoneLinhas">
+                            @for (var i = 0; i < Model.Telefones.Count; i++)
+                            {
+                                var tel = Model.Telefones[i];
+                                <tr>
+                                    <input type="hidden" name="Telefones.Index" value="@i" />
+                                    <input type="hidden" name="Telefones[@i].Ativo" value="true" />
+                                    <td><input class="form-control form-control-sm" name="Telefones[@i].NumeroTelefone" value="@tel.NumeroTelefone" maxlength="20" /></td>
+                                    <td><select class="form-select form-select-sm" name="Telefones[@i].CodigoTipoTelefone">@Html.Raw(OpcoesTipo(tel.CodigoTipoTelefone))</select></td>
+                                    <td><input class="form-control form-control-sm" name="Telefones[@i].Operadora" value="@tel.Operadora" maxlength="50" /></td>
+                                    <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover-telefone>&times;</button></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="idClienteSalvar">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<template id="idTelefoneTemplate">
+    <tr>
+        <input type="hidden" name="Telefones.Index" value="__key__" />
+        <input type="hidden" name="Telefones[__key__].Ativo" value="true" />
+        <td><input class="form-control form-control-sm" name="Telefones[__key__].NumeroTelefone" maxlength="20" /></td>
+        <td><select class="form-select form-select-sm" name="Telefones[__key__].CodigoTipoTelefone">@Html.Raw(OpcoesTipo(null))</select></td>
+        <td><input class="form-control form-control-sm" name="Telefones[__key__].Operadora" maxlength="50" /></td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover-telefone>&times;</button></td>
+    </tr>
+</template>
