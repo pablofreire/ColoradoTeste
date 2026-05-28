@@ -19,6 +19,11 @@ um salto de rede desnecessario para uma aplicacao que roda no mesmo processo.
 Validacao de input com **FluentValidation** nos serviços de aplicacao (vale para as duas
 apresentacoes). Regras de negocio e invariantes ficam no dominio.
 
+No Web App, o AJAX trabalha com **partial views renderizadas no servidor** (tabela e
+formulario) e **ViewModels** proprios da camada de apresentacao (mapeados de/para os DTOs da
+Aplicacao). Os artefatos da Web sao organizados por feature, espelhando a pasta da View
+(ex.: `Views/Cliente/`, `Models/Cliente/`, `Mapeamentos/Cliente/`, `wwwroot/js/Cliente/`).
+
 ## Pre-requisitos
 
 - .NET SDK 6.0 ou superior
