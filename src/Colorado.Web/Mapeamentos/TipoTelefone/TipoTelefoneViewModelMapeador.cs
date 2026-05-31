@@ -1,4 +1,4 @@
-using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
 using Colorado.Web.Models.TipoTelefone;
 
 namespace Colorado.Web.Mapeamentos.TipoTelefone;
@@ -26,6 +26,6 @@ public static class TipoTelefoneViewModelMapeador
 
     public static SalvarTipoTelefoneDto ParaDto(SalvarTipoTelefoneViewModel vm)
     {
-        return new SalvarTipoTelefoneDto { DescricaoTipoTelefone = vm.Descricao };
+        return new SalvarTipoTelefoneDto { DescricaoTipoTelefone = vm.Descricao, Usuario = vm.Usuario };
     }
 }

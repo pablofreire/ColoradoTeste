@@ -1,6 +1,6 @@
-using Colorado.Aplicacao.Dtos;
-using Colorado.Aplicacao.Excecoes;
-using Colorado.Aplicacao.Interfaces;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
+using Colorado.Web.ApiClients;
+using Colorado.Web.ApiClients.TiposTelefone;
 using Colorado.Web.Controllers;
 using Colorado.Web.Models;
 using Colorado.Web.Models.TipoTelefone;
@@ -14,12 +14,12 @@ namespace Colorado.Web.Testes;
 
 public class TipoTelefoneControllerTests
 {
-    private readonly ITipoTelefoneServico _servico = Substitute.For<ITipoTelefoneServico>();
+    private readonly ITipoTelefoneApiClient _tipoApi = Substitute.For<ITipoTelefoneApiClient>();
     private readonly TipoTelefoneController _controller;
 
     public TipoTelefoneControllerTests()
     {
-        _controller = new TipoTelefoneController(_servico)
+        _controller = new TipoTelefoneController(_tipoApi)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
@@ -34,7 +34,11 @@ public class TipoTelefoneControllerTests
     [Fact]
     public async Task Listar_RetornaPartialDaTabela()
     {
-        _servico.ListarAsync().Returns(new List<TipoTelefoneDto>());
+        _tipoApi.ListarAsync().Returns(new ResultadoApi<IEnumerable<TipoTelefoneDto>>
+        {
+            Sucesso = true,
+            Dados = new List<TipoTelefoneDto>()
+        });
 
         var resultado = await _controller.Listar();
 
@@ -46,35 +50,43 @@ public class TipoTelefoneControllerTests
     [Fact]
     public async Task Salvar_Valido_RetornaJsonSucesso()
     {
-        var vm = new SalvarTipoTelefoneViewModel { Descricao = "FAX" };
+        _tipoApi.CriarAsync(Arg.Any<SalvarTipoTelefoneDto>())
+            .Returns(new ResultadoApi<TipoTelefoneDto> { Sucesso = true });
 
-        var resultado = await _controller.Salvar(vm);
+        var resultado = await _controller.Salvar(new SalvarTipoTelefoneViewModel { Descricao = "FAX" });
 
         resultado.Should().BeOfType<JsonResult>().Which.Value
             .Should().BeOfType<RespostaJson>().Which.Sucesso.Should().BeTrue();
-        await _servico.Received(1).CriarAsync(Arg.Any<SalvarTipoTelefoneDto>(), Arg.Any<string>());
+        await _tipoApi.Received(1).CriarAsync(Arg.Any<SalvarTipoTelefoneDto>());
     }
 
     [Fact]
-    public async Task Salvar_Duplicado_RetornaPartialComModelStateInvalido()
+    public async Task Salvar_Duplicado_RetornaJsonComErros()
     {
-        _servico
-            .When(s => s.CriarAsync(Arg.Any<SalvarTipoTelefoneDto>(), Arg.Any<string>()))
-            .Do(_ => throw new Colorado.Dominio.Excecoes.DominioException("Ja existe."));
+        _tipoApi.CriarAsync(Arg.Any<SalvarTipoTelefoneDto>()).Returns(new ResultadoApi<TipoTelefoneDto>
+        {
+            Sucesso = false,
+            Erros = new List<string> { "Ja existe." }
+        });
 
-        var resultado = await _controller.Salvar(new SalvarTipoTelefoneViewModel { Descricao = "RESIDENCIAL" });
+        var resultado = await _controller.Salvar(new SalvarTipoTelefoneViewModel { Descricao = "Residencial" });
 
-        resultado.Should().BeOfType<PartialViewResult>().Which.ViewName.Should().Be("_FormularioTipoTelefone");
-        _controller.ModelState.IsValid.Should().BeFalse();
+        var json = resultado.Should().BeOfType<JsonResult>().Which.Value
+            .Should().BeOfType<RespostaJson>().Subject;
+        json.Sucesso.Should().BeFalse();
+        json.Erros.Should().Contain("Ja existe.");
+        _controller.Response.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
     [Fact]
     public async Task Excluir_RetornaJsonSucesso()
     {
+        _tipoApi.RemoverAsync(1).Returns(new ResultadoApi<object> { Sucesso = true });
+
         var resultado = await _controller.Excluir(1);
 
         resultado.Should().BeOfType<JsonResult>().Which.Value
             .Should().BeOfType<RespostaJson>().Which.Sucesso.Should().BeTrue();
-        await _servico.Received(1).RemoverAsync(1);
+        await _tipoApi.Received(1).RemoverAsync(1);
     }
 }

@@ -1,3 +1,6 @@
+using Colorado.Dominio.Interfaces.Clientes;
+using Colorado.Dominio.Interfaces.TiposTelefone;
+
 namespace Colorado.Dominio.Interfaces;
 
 public interface IUnitOfWork

@@ -1,5 +1,5 @@
-using Colorado.Aplicacao.Dtos;
-using Colorado.Aplicacao.Interfaces;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
+using Colorado.Aplicacao.Interfaces.TiposTelefone;
 using Colorado.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +10,6 @@ namespace Colorado.Api.Controllers;
 [Produces("application/json")]
 public class TiposTelefoneController : ControllerBase
 {
-    private const string UsuarioApi = "api";
-
     private readonly ITipoTelefoneServico _servico;
 
     public TiposTelefoneController(ITipoTelefoneServico servico)
@@ -37,7 +35,7 @@ public class TiposTelefoneController : ControllerBase
         var tipo = await _servico.ObterPorIdAsync(codigo);
 
         if (tipo is null)
-            return NotFound(RespostaApi.Falha($"Tipo de telefone {codigo} nao encontrado."));
+            return NotFound(RespostaApi<object>.Falha($"Tipo de telefone {codigo} nao encontrado."));
 
         return Ok(RespostaApi<TipoTelefoneDto>.Ok(tipo));
     }
@@ -48,7 +46,7 @@ public class TiposTelefoneController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Criar([FromBody] SalvarTipoTelefoneDto dto)
     {
-        var criado = await _servico.CriarAsync(dto, UsuarioApi);
+        var criado = await _servico.CriarAsync(dto, dto.Usuario);
 
         return CreatedAtAction(nameof(ObterPorId), new { codigo = criado.CodigoTipoTelefone },
             RespostaApi<TipoTelefoneDto>.Ok(criado, "Tipo de telefone criado com sucesso."));

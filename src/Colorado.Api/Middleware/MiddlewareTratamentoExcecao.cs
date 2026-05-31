@@ -50,7 +50,7 @@ public class MiddlewareTratamentoExcecao
         contexto.Response.ContentType = "application/json";
         contexto.Response.StatusCode = statusCode;
 
-        var corpo = RespostaApi.Falha(mensagem, erros);
+        var corpo = RespostaApi<object>.Falha(mensagem, erros);
         var opcoes = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         await contexto.Response.WriteAsync(JsonSerializer.Serialize(corpo, opcoes));

@@ -1,6 +1,8 @@
 using Colorado.Dominio.Entidades;
 using Colorado.Dominio.Enums;
 using Colorado.Infraestrutura.Repositorios;
+using Colorado.Infraestrutura.Repositorios.Clientes;
+using Colorado.Infraestrutura.Repositorios.TiposTelefone;
 using FluentAssertions;
 using Xunit;
 

@@ -12,12 +12,9 @@ public class RespostaApi<T>
     {
         return new RespostaApi<T> { Sucesso = true, Dados = dados, Mensagem = mensagem };
     }
-}
 
-public static class RespostaApi
-{
-    public static RespostaApi<object> Falha(string mensagem, IEnumerable<string>? erros = null)
+    public static RespostaApi<T> Falha(string mensagem, IEnumerable<string>? erros = null)
     {
-        return new RespostaApi<object> { Sucesso = false, Mensagem = mensagem, Erros = erros };
+        return new RespostaApi<T> { Sucesso = false, Mensagem = mensagem, Erros = erros };
     }
 }

@@ -1,6 +1,6 @@
-using Colorado.Aplicacao.Excecoes;
-using Colorado.Aplicacao.Interfaces;
-using Colorado.Dominio.Excecoes;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
+using Colorado.Web.ApiClients;
+using Colorado.Web.ApiClients.TiposTelefone;
 using Colorado.Web.Mapeamentos.TipoTelefone;
 using Colorado.Web.Models;
 using Colorado.Web.Models.TipoTelefone;
@@ -10,13 +10,11 @@ namespace Colorado.Web.Controllers;
 
 public class TipoTelefoneController : Controller
 {
-    private const string UsuarioWeb = "web";
+    private readonly ITipoTelefoneApiClient _tipoTelefoneApi;
 
-    private readonly ITipoTelefoneServico _servico;
-
-    public TipoTelefoneController(ITipoTelefoneServico servico)
+    public TipoTelefoneController(ITipoTelefoneApiClient tipoTelefoneApi)
     {
-        _servico = servico;
+        _tipoTelefoneApi = tipoTelefoneApi;
     }
 
     public IActionResult Index()
@@ -27,7 +25,8 @@ public class TipoTelefoneController : Controller
     [HttpGet]
     public async Task<IActionResult> Listar()
     {
-        var tipos = await _servico.ListarAsync();
+        var resultado = await _tipoTelefoneApi.ListarAsync();
+        var tipos = resultado.Dados ?? Enumerable.Empty<TipoTelefoneDto>();
         return PartialView("_TabelaTiposTelefone", TipoTelefoneViewModelMapeador.ParaLista(tipos));
     }
 
@@ -37,11 +36,11 @@ public class TipoTelefoneController : Controller
         SalvarTipoTelefoneViewModel vm;
         if (codigo.HasValue)
         {
-            var dto = await _servico.ObterPorIdAsync(codigo.Value);
-            if (dto is null)
+            var resultado = await _tipoTelefoneApi.ObterPorIdAsync(codigo.Value);
+            if (!resultado.Sucesso || resultado.Dados is null)
                 return NotFound();
 
-            vm = TipoTelefoneViewModelMapeador.ParaFormulario(dto);
+            vm = TipoTelefoneViewModelMapeador.ParaFormulario(resultado.Dados);
         }
         else
         {
@@ -54,53 +53,38 @@ public class TipoTelefoneController : Controller
     [HttpPost]
     public async Task<IActionResult> Salvar(SalvarTipoTelefoneViewModel vm)
     {
-        try
-        {
-            var dto = TipoTelefoneViewModelMapeador.ParaDto(vm);
+        var dto = TipoTelefoneViewModelMapeador.ParaDto(vm);
 
-            if (vm.EhEdicao)
-                await _servico.AtualizarAsync(vm.Codigo!.Value, dto);
-            else
-                await _servico.CriarAsync(dto, UsuarioWeb);
+        var (sucesso, mensagem, erros) = vm.EhEdicao
+            ? Reduzir(await _tipoTelefoneApi.AtualizarAsync(vm.Codigo!.Value, dto))
+            : Reduzir(await _tipoTelefoneApi.CriarAsync(dto));
 
+        if (sucesso)
             return Json(new RespostaJson { Sucesso = true, Mensagem = "Tipo de telefone salvo com sucesso." });
-        }
-        catch (ValidacaoException ex)
-        {
-            foreach (var erro in ex.Erros)
-                ModelState.AddModelError(string.Empty, erro);
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return PartialView("_FormularioTipoTelefone", vm);
-        }
-        catch (DominioException ex)
-        {
-            ModelState.AddModelError(string.Empty, ex.Message);
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return PartialView("_FormularioTipoTelefone", vm);
-        }
-        catch (NaoEncontradoException)
-        {
-            return NotFound();
-        }
+
+        var listaErros = erros.Count > 0
+            ? erros.ToList()
+            : new List<string> { mensagem ?? "Nao foi possivel salvar o tipo de telefone." };
+
+        Response.StatusCode = StatusCodes.Status400BadRequest;
+        return Json(new RespostaJson { Sucesso = false, Mensagem = mensagem, Erros = listaErros });
     }
 
     [HttpPost]
     public async Task<IActionResult> Excluir(int codigo)
     {
-        try
-        {
-            await _servico.RemoverAsync(codigo);
+        var resultado = await _tipoTelefoneApi.RemoverAsync(codigo);
+        if (resultado.Sucesso)
             return Json(new RespostaJson { Sucesso = true, Mensagem = "Tipo de telefone removido com sucesso." });
-        }
-        catch (DominioException ex)
+
+        Response.StatusCode = StatusCodes.Status400BadRequest;
+        return Json(new RespostaJson
         {
-            Response.StatusCode = StatusCodes.Status400BadRequest;
-            return Json(new RespostaJson { Sucesso = false, Mensagem = ex.Message });
-        }
-        catch (NaoEncontradoException ex)
-        {
-            Response.StatusCode = StatusCodes.Status404NotFound;
-            return Json(new RespostaJson { Sucesso = false, Mensagem = ex.Message });
-        }
+            Sucesso = false,
+            Mensagem = resultado.Mensagem ?? "Nao foi possivel remover o tipo de telefone."
+        });
     }
+
+    private static (bool Sucesso, string? Mensagem, IReadOnlyList<string> Erros) Reduzir<T>(ResultadoApi<T> resultado)
+        => (resultado.Sucesso, resultado.Mensagem, resultado.Erros ?? new List<string>());
 }

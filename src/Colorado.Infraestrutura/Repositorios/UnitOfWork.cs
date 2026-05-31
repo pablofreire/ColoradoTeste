@@ -1,3 +1,5 @@
+using Colorado.Dominio.Interfaces.Clientes;
+using Colorado.Dominio.Interfaces.TiposTelefone;
 using Colorado.Dominio.Interfaces;
 using Colorado.Infraestrutura.Contexto;
 

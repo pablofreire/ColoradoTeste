@@ -1,5 +1,9 @@
 using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Dtos.Clientes;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
 using Colorado.Aplicacao.Interfaces;
+using Colorado.Aplicacao.Interfaces.Clientes;
+using Colorado.Aplicacao.Interfaces.TiposTelefone;
 using Colorado.Api.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;

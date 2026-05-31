@@ -47,18 +47,59 @@ const montarFormularioTipo = (html) => {
     elementosTipo.containerModal.innerHTML = html;
 
     const modalElemento = document.getElementById('idTipoModal');
-    tipoModal = new bootstrap.Modal(modalElemento);
+    tipoModal = bootstrap.Modal.getOrCreateInstance(modalElemento);
+
+    // Ao fechar: descarta a instancia, limpa o container e remove qualquer backdrop
+    // remanescente (evita a camada escura que travava a tela).
     modalElemento.addEventListener('hidden.bs.modal', () => {
+        tipoModal.dispose();
+        tipoModal = null;
         elementosTipo.containerModal.innerHTML = '';
-    });
+        document.querySelectorAll('.modal-backdrop').forEach((b) => b.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('overflow');
+        document.body.style.removeProperty('padding-right');
+    }, { once: true });
 
     document.getElementById('idTipoForm').addEventListener('submit', salvarTipo);
     tipoModal.show();
 };
 
+// Mostra a lista de erros do servidor dentro do modal aberto (sem reconstruir o modal).
+const exibirErrosTipo = (erros) => {
+    const caixa = document.getElementById('idTipoErros');
+    if (!caixa) return;
+
+    const itens = (erros && erros.length) ? erros : ['Nao foi possivel salvar o tipo de telefone.'];
+    caixa.innerHTML = itens.map((e) => `<div>${e}</div>`).join('');
+    caixa.classList.remove('d-none');
+};
+
+// Validacao client-side: espelha o FluentValidator. Usuario so e exigido na criacao
+// (a API ignora Usuario na atualizacao).
+const validarFormularioTipo = (formulario) => {
+    const ehEdicao = !!formulario.querySelector('[name="Codigo"]')?.value;
+
+    const regras = [
+        { campo: 'Descricao', mensagem: 'A descricao e obrigatoria.', teste: (v) => v.trim().length > 0 },
+        { campo: 'Descricao', mensagem: 'A descricao deve ter no maximo 50 caracteres.', teste: (v) => v.trim().length <= 50 }
+    ];
+
+    if (!ehEdicao) {
+        regras.push(
+            { campo: 'Usuario', mensagem: 'O usuario e obrigatorio.', teste: (v) => v.trim().length > 0 },
+            { campo: 'Usuario', mensagem: 'O usuario deve ter no maximo 50 caracteres.', teste: (v) => v.trim().length <= 50 }
+        );
+    }
+
+    return validarRegras(formulario, regras);
+};
+
 const salvarTipo = async (evento) => {
     evento.preventDefault();
     const formulario = document.getElementById('idTipoForm');
+
+    if (!validarFormularioTipo(formulario)) return;
 
     const resposta = await enviarFormulario('/TipoTelefone/Salvar', new FormData(formulario));
 
@@ -69,9 +110,7 @@ const salvarTipo = async (evento) => {
         return;
     }
 
-    if (resposta.html) {
-        montarFormularioTipo(resposta.html);
-    }
+    exibirErrosTipo(resposta.json ? resposta.json.erros : null);
 };
 
 const excluirTipo = async (codigo) => {

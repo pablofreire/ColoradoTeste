@@ -63,7 +63,68 @@ const postarJson = async (url, dados) => {
     return { ok: resposta.ok, json };
 };
 
+// ---------------------------------------------------------------------------
+// Validacao client-side (sem postback). Marca os campos com o padrao do Bootstrap
+// (.is-invalid + .invalid-feedback) para dar retorno imediato antes de chamar a API.
+// ---------------------------------------------------------------------------
+
+// Garante um <div class="invalid-feedback"> logo apos o input e o preenche.
+const marcarInvalido = (input, mensagem) => {
+    if (!input) return;
+    input.classList.add('is-invalid');
+
+    let feedback = input.nextElementSibling;
+    if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+        feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        input.insertAdjacentElement('afterend', feedback);
+    }
+    feedback.textContent = mensagem;
+};
+
+const limparInvalido = (input) => {
+    if (!input) return;
+    input.classList.remove('is-invalid');
+    const feedback = input.nextElementSibling;
+    if (feedback && feedback.classList.contains('invalid-feedback')) {
+        feedback.textContent = '';
+    }
+};
+
+// Remove todos os estados de erro do formulario.
+const limparValidacao = (form) => {
+    form.querySelectorAll('.is-invalid').forEach(limparInvalido);
+};
+
+// Roda uma lista de regras { campo, mensagem, teste }. Marca os invalidos, foca o
+// primeiro e devolve true quando tudo passou. Cada regra tambem liga um listener
+// 'input' que limpa o proprio erro assim que o usuario corrige.
+const validarRegras = (form, regras) => {
+    limparValidacao(form);
+
+    let primeiroInvalido = null;
+    for (const regra of regras) {
+        const campo = form.querySelector(`[name="${regra.campo}"]`);
+        if (!campo) continue;
+
+        if (!regra.teste(campo.value, campo)) {
+            marcarInvalido(campo, regra.mensagem);
+            primeiroInvalido = primeiroInvalido || campo;
+            campo.addEventListener('input', () => limparInvalido(campo), { once: true });
+        }
+    }
+
+    if (primeiroInvalido) {
+        primeiroInvalido.focus();
+        return false;
+    }
+    return true;
+};
+
 const apenasNumeros = (valor) => (valor || '').replace(/\D/g, '');
+
+// Documento normalizado: mantem letras e digitos (CNPJ alfanumerico), em maiusculas.
+const normalizarDocumento = (valor) => (valor || '').replace(/[^0-9A-Za-z]/g, '').toUpperCase();
 
 // CPF: 11 digitos com os dois digitos verificadores conferidos.
 const validarCpf = (valor) => {
@@ -85,17 +146,20 @@ const validarCpf = (valor) => {
         && calcularDigito(10) === parseInt(cpf[10], 10);
 };
 
-// CNPJ: 14 digitos validados com os pesos padrao da Receita.
+// CNPJ alfanumerico (Receita, jul/2026): 12 posicoes alfanumericas + 2 DVs numericos. Cada
+// caractere vale (charCode - 48); CNPJ numerico antigo continua valido.
 const validarCnpj = (valor) => {
-    const cnpj = apenasNumeros(valor);
-    if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) {
+    const cnpj = normalizarDocumento(valor);
+    if (!/^[0-9A-Z]{12}[0-9]{2}$/.test(cnpj) || /^(.)\1{13}$/.test(cnpj)) {
         return false;
     }
+
+    const valorChar = (c) => c.charCodeAt(0) - 48;
 
     const calcular = (pesos) => {
         let soma = 0;
         for (let i = 0; i < pesos.length; i++) {
-            soma += parseInt(cnpj[i], 10) * pesos[i];
+            soma += valorChar(cnpj[i]) * pesos[i];
         }
         const resto = soma % 11;
         return resto < 2 ? 0 : 11 - resto;
@@ -104,7 +168,7 @@ const validarCnpj = (valor) => {
     const primeiro = calcular([5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
     const segundo = calcular([6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
 
-    return primeiro === parseInt(cnpj[12], 10) && segundo === parseInt(cnpj[13], 10);
+    return primeiro === valorChar(cnpj[12]) && segundo === valorChar(cnpj[13]);
 };
 
 const validarDocumento = (tipoPessoa, documento) =>

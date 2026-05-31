@@ -1,27 +1,22 @@
-using Colorado.Aplicacao.DependencyInjection;
-using Colorado.Infraestrutura.Contexto;
-using Colorado.Infraestrutura.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
+using Colorado.Web.ApiClients;
+using Colorado.Web.ApiClients.Clientes;
+using Colorado.Web.ApiClients.TiposTelefone;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var provider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
-var connectionString = builder.Configuration.GetConnectionString("ConexaoPadrao")
-    ?? "Data Source=colorado.db";
+// A camada Web e um frontend puro: consome a API REST por HTTP, sem acesso direto ao banco.
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"]
+    ?? throw new InvalidOperationException("Configuracao 'ApiBaseUrl' nao definida.");
 
-// A camada Web consome Aplicacao/Infraestrutura diretamente, sem passar pela API.
-builder.Services.AdicionarInfraestrutura(provider, connectionString);
-builder.Services.AdicionarAplicacao();
+builder.Services.AddHttpClient<IApiHttpCliente, ApiHttpCliente>(cliente =>
+    cliente.BaseAddress = new Uri(apiBaseUrl));
+
+builder.Services.AddScoped<IClienteApiClient, ClienteApiClient>();
+builder.Services.AddScoped<ITipoTelefoneApiClient, TipoTelefoneApiClient>();
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-
-using (var escopo = app.Services.CreateScope())
-{
-    var contexto = escopo.ServiceProvider.GetRequiredService<ColoradoDbContext>();
-    InicializadorBanco.Inicializar(contexto, provider);
-}
 
 if (!app.Environment.IsDevelopment())
 {

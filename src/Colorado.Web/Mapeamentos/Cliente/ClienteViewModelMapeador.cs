@@ -1,4 +1,5 @@
-using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Dtos.Clientes;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
 using Colorado.Dominio.Paginacao;
 using Colorado.Web.Models.Cliente;
 
@@ -29,9 +30,24 @@ public static class ClienteViewModelMapeador
             RazaoSocial = dto.RazaoSocial,
             NomeFantasia = dto.NomeFantasia,
             TipoPessoaDescricao = dto.TipoPessoa == "F" ? "Fisica" : "Juridica",
-            Documento = dto.Documento,
+            Documento = FormatarDocumento(dto.Documento, dto.TipoPessoa),
             CidadeUf = string.IsNullOrWhiteSpace(dto.Cidade) ? dto.Uf : $"{dto.Cidade}/{dto.Uf}"
         };
+    }
+
+    // Aplica a mascara de exibicao: CPF (11 digitos) ou CNPJ (14 posicoes). Tamanho inesperado
+    // volta cru, para nao mascarar dado incompleto.
+    private static string FormatarDocumento(string documento, string tipoPessoa)
+    {
+        var valor = documento ?? string.Empty;
+
+        if (tipoPessoa == "F" && valor.Length == 11)
+            return $"{valor[..3]}.{valor[3..6]}.{valor[6..9]}-{valor[9..]}";
+
+        if (tipoPessoa == "J" && valor.Length == 14)
+            return $"{valor[..2]}.{valor[2..5]}.{valor[5..8]}/{valor[8..12]}-{valor[12..]}";
+
+        return valor;
     }
 
     public static SalvarClienteViewModel ParaFormulario(ClienteDto dto)
@@ -49,6 +65,7 @@ public static class ClienteViewModelMapeador
             Cidade = dto.Cidade,
             Cep = dto.Cep,
             Uf = dto.Uf,
+            Usuario = dto.UsuarioInsercao,
             Telefones = dto.Telefones.Select(t => new SalvarTelefoneViewModel
             {
                 NumeroTelefone = t.NumeroTelefone,
@@ -73,6 +90,7 @@ public static class ClienteViewModelMapeador
             Cidade = vm.Cidade,
             Cep = vm.Cep,
             Uf = vm.Uf,
+            Usuario = vm.Usuario,
             Telefones = (vm.Telefones ?? new()).Select(t => new SalvarTelefoneDto
             {
                 NumeroTelefone = t.NumeroTelefone,

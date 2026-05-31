@@ -1,3 +1,7 @@
+using Colorado.Dominio.Interfaces.Clientes;
+using Colorado.Dominio.Interfaces.TiposTelefone;
+using Colorado.Infraestrutura.Repositorios.Clientes;
+using Colorado.Infraestrutura.Repositorios.TiposTelefone;
 using Colorado.Dominio.Interfaces;
 using Colorado.Infraestrutura.Contexto;
 using Colorado.Infraestrutura.Repositorios;
@@ -8,19 +12,12 @@ namespace Colorado.Infraestrutura.DependencyInjection;
 
 public static class InfraestruturaServiceCollectionExtensions
 {
-    // Centraliza o registro de DbContext, repositorios e unit of work. As duas
-    // camadas de apresentacao (API e Web) chamam este mesmo metodo. O provider e
-    // escolhido por configuracao: SQLite no dev local, SQL Server no Docker.
+    // Centraliza o registro de DbContext, repositorios e unit of work. A camada
+    // de apresentacao (API) chama este metodo. O banco e sempre SQL Server.
     public static IServiceCollection AdicionarInfraestrutura(this IServiceCollection servicos,
-        string provider, string connectionString)
+        string connectionString)
     {
-        servicos.AddDbContext<ColoradoDbContext>(opcoes =>
-        {
-            if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
-                opcoes.UseSqlServer(connectionString);
-            else
-                opcoes.UseSqlite(connectionString);
-        });
+        servicos.AddDbContext<ColoradoDbContext>(opcoes => opcoes.UseSqlServer(connectionString));
 
         servicos.AddScoped<IClienteRepositorio, ClienteRepositorio>();
         servicos.AddScoped<ITipoTelefoneRepositorio, TipoTelefoneRepositorio>();

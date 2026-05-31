@@ -11,11 +11,10 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 const string politicaCors = "PermitirTudo";
-var provider = builder.Configuration["DatabaseProvider"] ?? "Sqlite";
 var connectionString = builder.Configuration.GetConnectionString("ConexaoPadrao")
-    ?? "Data Source=colorado.db";
+    ?? throw new InvalidOperationException("Connection string 'ConexaoPadrao' nao configurada.");
 
-builder.Services.AdicionarInfraestrutura(provider, connectionString);
+builder.Services.AdicionarInfraestrutura(connectionString);
 builder.Services.AdicionarAplicacao();
 
 builder.Services.AddControllers();
@@ -31,7 +30,7 @@ builder.Services.Configure<ApiBehaviorOptions>(opcoes =>
             .Where(m => !string.IsNullOrWhiteSpace(m))
             .ToList();
 
-        return new BadRequestObjectResult(RespostaApi.Falha("Dados invalidos.", erros));
+        return new BadRequestObjectResult(RespostaApi<object>.Falha("Dados invalidos.", erros));
     };
 });
 
@@ -56,11 +55,11 @@ builder.Services.AddSwaggerGen(opcoes =>
 
 var app = builder.Build();
 
-// Prepara o banco no startup (migrations no SQL Server, schema no SQLite) para subir pronto.
+// Prepara o banco no startup (aplica as migrations do SQL Server) para subir pronto.
 using (var escopo = app.Services.CreateScope())
 {
     var contexto = escopo.ServiceProvider.GetRequiredService<ColoradoDbContext>();
-    InicializadorBanco.Inicializar(contexto, provider);
+    InicializadorBanco.Inicializar(contexto);
 }
 
 app.UseMiddleware<MiddlewareTratamentoExcecao>();

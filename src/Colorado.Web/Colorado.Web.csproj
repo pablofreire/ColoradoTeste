@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Colorado.Aplicacao\Colorado.Aplicacao.csproj" />
-    <ProjectReference Include="..\Colorado.Infraestrutura\Colorado.Infraestrutura.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

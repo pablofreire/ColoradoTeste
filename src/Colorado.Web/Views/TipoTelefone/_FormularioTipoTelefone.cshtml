@@ -9,16 +9,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
-                    }
+                    <div id="idTipoErros" class="alert alert-danger py-2 small d-none"></div>
 
                     <input type="hidden" asp-for="Codigo" />
                     <div class="mb-2">
                         <label class="form-label" asp-for="Descricao">Descricao</label>
-                        <input class="form-control" asp-for="Descricao" maxlength="50" placeholder="Ex.: RESIDENCIAL" />
+                        <input class="form-control" asp-for="Descricao" maxlength="50" placeholder="Ex.: Residencial" />
                     </div>
+                    @if (!Model.EhEdicao)
+                    {
+                        <div class="mb-2">
+                            <label class="form-label" asp-for="Usuario">Usuario</label>
+                            <input class="form-control" asp-for="Usuario" maxlength="50" placeholder="Quem esta cadastrando" />
+                        </div>
+                    }
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>

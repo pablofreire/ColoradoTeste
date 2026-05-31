@@ -22,36 +22,45 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                 </div>
                 <div class="modal-body">
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div asp-validation-summary="All" class="alert alert-danger py-2 small"></div>
-                    }
+                    <div id="idClienteErros" class="alert alert-danger py-2 small d-none"></div>
 
                     <input type="hidden" asp-for="Codigo" />
 
                     <div class="row g-2">
-                        <div class="col-md-6">
-                            <label class="form-label" asp-for="RazaoSocial">Razao social</label>
-                            <input class="form-control" asp-for="RazaoSocial" maxlength="200" />
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label" asp-for="NomeFantasia">Nome fantasia</label>
-                            <input class="form-control" asp-for="NomeFantasia" maxlength="200" />
-                        </div>
                         <div class="col-md-3">
                             <label class="form-label" asp-for="TipoPessoa">Tipo de pessoa</label>
-                            <select class="form-select" asp-for="TipoPessoa">
-                                <option value="J">Juridica</option>
-                                <option value="F">Fisica</option>
-                            </select>
+                            @if (Model.EhEdicao)
+                            {
+                                <select class="form-select" asp-for="TipoPessoa" disabled>
+                                    <option value="J">Juridica</option>
+                                    <option value="F">Fisica</option>
+                                </select>
+                                @* select disabled nao posta; o hidden mantem o valor no submit *@
+                                <input type="hidden" name="TipoPessoa" value="@Model.TipoPessoa" />
+                            }
+                            else
+                            {
+                                <select class="form-select" asp-for="TipoPessoa">
+                                    <option value="J">Juridica</option>
+                                    <option value="F">Fisica</option>
+                                </select>
+                            }
+                        </div>
+                        <div class="col-md-9" id="colRazaoSocial">
+                            <label class="form-label" id="lblRazaoSocial" asp-for="RazaoSocial">Razao social</label>
+                            <input class="form-control" asp-for="RazaoSocial" maxlength="200" />
+                        </div>
+                        <div class="col-md-7" id="colNomeFantasia">
+                            <label class="form-label" id="lblNomeFantasia" asp-for="NomeFantasia">Nome fantasia</label>
+                            <input class="form-control" asp-for="NomeFantasia" maxlength="200" />
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label" asp-for="Documento">Documento (CPF/CNPJ)</label>
+                            <label class="form-label" id="lblDocumento" asp-for="Documento">Documento</label>
                             <input class="form-control" asp-for="Documento" maxlength="20" />
                         </div>
                         <div class="col-md-4">
                             <label class="form-label" asp-for="Cep">CEP</label>
-                            <input class="form-control" asp-for="Cep" maxlength="9" />
+                            <input class="form-control" asp-for="Cep" maxlength="9" inputmode="numeric" />
                         </div>
 
                         <div class="col-md-8">
@@ -72,8 +81,28 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label" asp-for="Uf">UF</label>
-                            <input class="form-control text-uppercase" asp-for="Uf" maxlength="2" />
+                            <select class="form-select" asp-for="Uf">
+                                <option value="">UF</option>
+                                @foreach (var uf in new[] { "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO" })
+                                {
+                                    <option value="@uf">@uf</option>
+                                }
+                            </select>
                         </div>
+                        @if (Model.EhEdicao)
+                        {
+                            <div class="col-md-4">
+                                <label class="form-label">Usuario que cadastrou</label>
+                                <input class="form-control" value="@Model.Usuario" readonly disabled />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-4">
+                                <label class="form-label" asp-for="Usuario">Usuario</label>
+                                <input class="form-control" asp-for="Usuario" maxlength="50" placeholder="Quem esta cadastrando" />
+                            </div>
+                        }
                     </div>
 
                     <hr class="my-3" />
@@ -121,7 +150,7 @@
     <tr>
         <input type="hidden" name="Telefones.Index" value="__key__" />
         <input type="hidden" name="Telefones[__key__].Ativo" value="true" />
-        <td><input class="form-control form-control-sm" name="Telefones[__key__].NumeroTelefone" maxlength="20" /></td>
+        <td><input class="form-control form-control-sm" name="Telefones[__key__].NumeroTelefone" maxlength="20" inputmode="numeric" /></td>
         <td><select class="form-select form-select-sm" name="Telefones[__key__].CodigoTipoTelefone">@Html.Raw(OpcoesTipo(null))</select></td>
         <td><input class="form-control form-control-sm" name="Telefones[__key__].Operadora" maxlength="50" /></td>
         <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover-telefone>&times;</button></td>

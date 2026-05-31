@@ -1,4 +1,6 @@
 using Colorado.Aplicacao.Mapeamentos;
+using Colorado.Aplicacao.Mapeamentos.Clientes;
+using Colorado.Aplicacao.Mapeamentos.TiposTelefone;
 using Colorado.Dominio.Entidades;
 using Colorado.Dominio.Enums;
 using Colorado.Dominio.Excecoes;

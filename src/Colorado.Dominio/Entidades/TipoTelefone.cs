@@ -43,7 +43,7 @@ public class TipoTelefone
         if (descricao.Length > 50)
             throw new DominioException("A descricao do tipo de telefone deve ter no maximo 50 caracteres.");
 
-        DescricaoTipoTelefone = descricao.Trim().ToUpper();
+        DescricaoTipoTelefone = descricao.Trim();
     }
 
     #endregion

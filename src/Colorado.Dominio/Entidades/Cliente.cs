@@ -40,7 +40,7 @@ public class Cliente
         RazaoSocial = razaoSocial.Trim();
         NomeFantasia = nomeFantasia.Trim();
         TipoPessoa = tipoPessoa;
-        Documento = Validacoes.Documento.ApenasNumeros(documento);
+        Documento = Validacoes.Documento.Normalizar(documento);
         Endereco = endereco?.Trim() ?? string.Empty;
         Complemento = complemento?.Trim() ?? string.Empty;
         Bairro = bairro?.Trim() ?? string.Empty;
@@ -64,7 +64,7 @@ public class Cliente
         RazaoSocial = razaoSocial.Trim();
         NomeFantasia = nomeFantasia.Trim();
         TipoPessoa = tipoPessoa;
-        Documento = Validacoes.Documento.ApenasNumeros(documento);
+        Documento = Validacoes.Documento.Normalizar(documento);
         Endereco = endereco?.Trim() ?? string.Empty;
         Complemento = complemento?.Trim() ?? string.Empty;
         Bairro = bairro?.Trim() ?? string.Empty;
@@ -96,18 +96,17 @@ public class Cliente
         if (string.IsNullOrWhiteSpace(razaoSocial))
             throw new DominioException("A razao social e obrigatoria.");
 
-        if (string.IsNullOrWhiteSpace(nomeFantasia))
+        // Nome fantasia so e exigido para pessoa juridica.
+        if (tipoPessoa == TipoPessoa.Juridica && string.IsNullOrWhiteSpace(nomeFantasia))
             throw new DominioException("O nome fantasia e obrigatorio.");
 
         if (string.IsNullOrWhiteSpace(uf) || uf.Trim().Length != 2)
             throw new DominioException("A UF deve ter 2 caracteres.");
 
-        var numero = Validacoes.Documento.ApenasNumeros(documento);
-
-        if (tipoPessoa == TipoPessoa.Fisica && !Validacoes.Documento.EhCpfValido(numero))
+        if (tipoPessoa == TipoPessoa.Fisica && !Validacoes.Documento.EhCpfValido(documento))
             throw new DominioException("CPF invalido.");
 
-        if (tipoPessoa == TipoPessoa.Juridica && !Validacoes.Documento.EhCnpjValido(numero))
+        if (tipoPessoa == TipoPessoa.Juridica && !Validacoes.Documento.EhCnpjValido(documento))
             throw new DominioException("CNPJ invalido.");
     }
 

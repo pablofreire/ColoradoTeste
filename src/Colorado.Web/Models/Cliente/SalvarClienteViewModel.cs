@@ -13,6 +13,7 @@ public class SalvarClienteViewModel
     public string Cidade { get; set; } = string.Empty;
     public string Cep { get; set; } = string.Empty;
     public string Uf { get; set; } = string.Empty;
+    public string Usuario { get; set; } = string.Empty;
 
     public List<SalvarTelefoneViewModel> Telefones { get; set; } = new();
 
@@ -20,18 +21,4 @@ public class SalvarClienteViewModel
     public List<TipoTelefoneOpcaoViewModel> TiposDisponiveis { get; set; } = new();
 
     public bool EhEdicao => Codigo.HasValue;
-}
-
-public class SalvarTelefoneViewModel
-{
-    public string NumeroTelefone { get; set; } = string.Empty;
-    public int CodigoTipoTelefone { get; set; }
-    public string Operadora { get; set; } = string.Empty;
-    public bool Ativo { get; set; } = true;
-}
-
-public class TipoTelefoneOpcaoViewModel
-{
-    public int Codigo { get; set; }
-    public string Descricao { get; set; } = string.Empty;
 }

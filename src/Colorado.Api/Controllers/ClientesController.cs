@@ -1,5 +1,5 @@
-using Colorado.Aplicacao.Dtos;
-using Colorado.Aplicacao.Interfaces;
+using Colorado.Aplicacao.Dtos.Clientes;
+using Colorado.Aplicacao.Interfaces.Clientes;
 using Colorado.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,8 +10,6 @@ namespace Colorado.Api.Controllers;
 [Produces("application/json")]
 public class ClientesController : ControllerBase
 {
-    private const string UsuarioApi = "api";
-
     private readonly IClienteServico _servico;
 
     public ClientesController(IClienteServico servico)
@@ -42,7 +40,7 @@ public class ClientesController : ControllerBase
         var cliente = await _servico.ObterPorIdAsync(codigo);
 
         if (cliente is null)
-            return NotFound(RespostaApi.Falha($"Cliente {codigo} nao encontrado."));
+            return NotFound(RespostaApi<object>.Falha($"Cliente {codigo} nao encontrado."));
 
         return Ok(RespostaApi<ClienteDto>.Ok(cliente));
     }
@@ -53,7 +51,7 @@ public class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Criar([FromBody] SalvarClienteDto dto)
     {
-        var criado = await _servico.CriarAsync(dto, UsuarioApi);
+        var criado = await _servico.CriarAsync(dto, dto.Usuario);
 
         return CreatedAtAction(nameof(ObterPorId), new { codigo = criado.CodigoCliente },
             RespostaApi<ClienteDto>.Ok(criado, "Cliente criado com sucesso."));
@@ -66,7 +64,7 @@ public class ClientesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Atualizar(int codigo, [FromBody] SalvarClienteDto dto)
     {
-        await _servico.AtualizarAsync(codigo, dto, UsuarioApi);
+        await _servico.AtualizarAsync(codigo, dto, dto.Usuario);
         return NoContent();
     }
 

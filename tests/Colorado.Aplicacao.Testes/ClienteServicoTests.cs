@@ -1,11 +1,19 @@
 using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Dtos.Clientes;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
 using Colorado.Aplicacao.Excecoes;
 using Colorado.Aplicacao.Servicos;
+using Colorado.Aplicacao.Servicos.Clientes;
+using Colorado.Aplicacao.Servicos.TiposTelefone;
 using Colorado.Aplicacao.Validacoes;
+using Colorado.Aplicacao.Validacoes.Clientes;
+using Colorado.Aplicacao.Validacoes.TiposTelefone;
 using Colorado.Dominio.Entidades;
 using Colorado.Dominio.Enums;
 using Colorado.Dominio.Excecoes;
 using Colorado.Dominio.Interfaces;
+using Colorado.Dominio.Interfaces.Clientes;
+using Colorado.Dominio.Interfaces.TiposTelefone;
 using Colorado.Dominio.Paginacao;
 using FluentAssertions;
 using NSubstitute;
@@ -34,7 +42,8 @@ public class ClienteServicoTests
         NomeFantasia = "Acme",
         TipoPessoa = "J",
         Documento = "11222333000181",
-        Uf = "SP"
+        Uf = "SP",
+        Usuario = "teste"
     };
 
     private static Cliente ClienteEntidade() => new(

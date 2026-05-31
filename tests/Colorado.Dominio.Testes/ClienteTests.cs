@@ -35,6 +35,15 @@ public class ClienteTests
     }
 
     [Fact]
+    public void Construtor_CnpjAlfanumerico_PreservaLetras()
+    {
+        var cliente = new Cliente("Acme", "Acme", TipoPessoa.Juridica, "12.ABC.345/01DE-35",
+            "", "", "", "", "", "SP", "teste");
+
+        cliente.Documento.Should().Be("12ABC34501DE35");
+    }
+
+    [Fact]
     public void Construtor_CnpjInvalidoParaJuridica_LancaDominioException()
     {
         var acao = () => new Cliente("Acme", "Acme", TipoPessoa.Juridica, "11222333000100",

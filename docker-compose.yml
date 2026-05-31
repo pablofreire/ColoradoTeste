@@ -9,7 +9,7 @@ services:
       - MSSQL_SA_PASSWORD=Colorado@123
       - MSSQL_PID=Express
     ports:
-      - "1433:1433"
+      - "1434:1433"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
@@ -21,6 +21,8 @@ services:
       retries: 10
       start_period: 30s
 
+  # API e Web tambem podem rodar pelo Visual Studio. Na rede do compose elas usam a porta
+  # interna do SQL (1433) - o mapeamento 1434 do host serve so para VS/SSMS.
   api:
     build:
       context: ./src
@@ -50,11 +52,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - DatabaseProvider=SqlServer
-      - ConnectionStrings__ConexaoPadrao=Server=sqlserver,1433;Database=ColoradoDb;User Id=sa;Password=Colorado@123;TrustServerCertificate=True;
+      - ApiBaseUrl=http://api:80
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      - api
     networks:
       - colorado-network
     restart: unless-stopped

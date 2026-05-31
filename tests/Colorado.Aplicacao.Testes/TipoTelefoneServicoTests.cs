@@ -1,10 +1,18 @@
 using Colorado.Aplicacao.Dtos;
+using Colorado.Aplicacao.Dtos.Clientes;
+using Colorado.Aplicacao.Dtos.TiposTelefone;
 using Colorado.Aplicacao.Excecoes;
 using Colorado.Aplicacao.Servicos;
+using Colorado.Aplicacao.Servicos.Clientes;
+using Colorado.Aplicacao.Servicos.TiposTelefone;
 using Colorado.Aplicacao.Validacoes;
+using Colorado.Aplicacao.Validacoes.Clientes;
+using Colorado.Aplicacao.Validacoes.TiposTelefone;
 using Colorado.Dominio.Entidades;
 using Colorado.Dominio.Excecoes;
 using Colorado.Dominio.Interfaces;
+using Colorado.Dominio.Interfaces.Clientes;
+using Colorado.Dominio.Interfaces.TiposTelefone;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
@@ -23,7 +31,7 @@ public class TipoTelefoneServicoTests
         _servico = new TipoTelefoneServico(_uow, new SalvarTipoTelefoneValidator());
     }
 
-    private static SalvarTipoTelefoneDto Dto(string descricao = "FAX") => new() { DescricaoTipoTelefone = descricao };
+    private static SalvarTipoTelefoneDto Dto(string descricao = "FAX") => new() { DescricaoTipoTelefone = descricao, Usuario = "teste" };
 
     [Fact]
     public async Task CriarAsync_DescricaoVazia_LancaValidacaoException()

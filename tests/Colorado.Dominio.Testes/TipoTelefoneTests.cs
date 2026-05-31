@@ -8,11 +8,11 @@ namespace Colorado.Dominio.Testes;
 public class TipoTelefoneTests
 {
     [Fact]
-    public void Construtor_Descricao_GuardaEmMaiusculas()
+    public void Construtor_Descricao_PreservaCaixaEAplicaTrim()
     {
-        var tipo = new TipoTelefone("residencial", "teste");
+        var tipo = new TipoTelefone("  Residencial  ", "teste");
 
-        tipo.DescricaoTipoTelefone.Should().Be("RESIDENCIAL");
+        tipo.DescricaoTipoTelefone.Should().Be("Residencial");
     }
 
     [Theory]
@@ -28,10 +28,10 @@ public class TipoTelefoneTests
     [Fact]
     public void AtualizarDescricao_AlteraValor()
     {
-        var tipo = new TipoTelefone("RESIDENCIAL", "teste");
+        var tipo = new TipoTelefone("Residencial", "teste");
 
-        tipo.AtualizarDescricao("comercial");
+        tipo.AtualizarDescricao("Comercial");
 
-        tipo.DescricaoTipoTelefone.Should().Be("COMERCIAL");
+        tipo.DescricaoTipoTelefone.Should().Be("Comercial");
     }
 }

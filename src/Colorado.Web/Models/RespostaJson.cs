@@ -6,4 +6,5 @@ public class RespostaJson
     public bool Sucesso { get; set; }
     public string? Mensagem { get; set; }
     public object? Dados { get; set; }
+    public List<string> Erros { get; set; } = new();
 }

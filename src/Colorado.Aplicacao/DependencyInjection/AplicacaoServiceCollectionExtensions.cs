@@ -1,6 +1,8 @@
-using Colorado.Aplicacao.Interfaces;
-using Colorado.Aplicacao.Servicos;
-using Colorado.Aplicacao.Validacoes;
+using Colorado.Aplicacao.Interfaces.Clientes;
+using Colorado.Aplicacao.Interfaces.TiposTelefone;
+using Colorado.Aplicacao.Servicos.Clientes;
+using Colorado.Aplicacao.Servicos.TiposTelefone;
+using Colorado.Aplicacao.Validacoes.Clientes;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
