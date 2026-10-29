@@ -78,12 +78,14 @@ dotnet run --project src/Colorado.Api    # http://localhost:5189/swagger
 dotnet run --project src/Colorado.Web    # ApiBaseUrl points to :5189 in Development
 ```
 
+`dotnet ef migrations add` works without a database. `dotnet ef database update` reads the connection string from the `ConnectionStrings__ConexaoPadrao` environment variable.
+
 ## Configuration
 
 | Setting | Where | Purpose |
 |---|---|---|
 | `MSSQL_SA_PASSWORD` | `.env` (git-ignored) | SQL Server `sa` password for Docker Compose |
-| `ConnectionStrings:ConexaoPadrao` | user-secrets or environment | API database connection |
+| `ConnectionStrings:ConexaoPadrao` | user-secrets or environment | API database connection; the design-time EF factory reads the environment variable |
 | `ApiBaseUrl` | `appsettings*.json` or environment | Address of the API used by the web app |
 
 No password is committed.

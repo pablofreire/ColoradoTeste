@@ -101,6 +101,7 @@ fluxo Docker nao e afetado por essas portas de dev.
 Para gerar/aplicar migrations manualmente (precisa de um SQL Server acessivel):
 
 ```
+export ConnectionStrings__ConexaoPadrao="Server=localhost,1434;Database=ColoradoDb;User Id=sa;Password=<sua MSSQL_SA_PASSWORD>;TrustServerCertificate=True;"
 dotnet ef database update --project src/Colorado.Infraestrutura
 ```
 
