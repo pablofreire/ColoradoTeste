@@ -7,6 +7,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Gera o XML para o Swagger sem exigir doc em todo membro publico -->
     <NoWarn>$(NoWarn);1591</NoWarn>
+    <UserSecretsId>colorado-api-6f2b8c1e-4d3a-4f7e-9b5c-2a1d0e8f7c34</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

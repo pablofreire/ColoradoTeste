@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: colorado-sqlserver
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Colorado@123
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:?Copy .env.example to .env and set MSSQL_SA_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1434:1433"
@@ -15,14 +13,14 @@ services:
     networks:
       - colorado-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Colorado@123 -C -Q 'SELECT 1' || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
 
-  # API e Web tambem podem rodar pelo Visual Studio. Na rede do compose elas usam a porta
-  # interna do SQL (1433) - o mapeamento 1434 do host serve so para VS/SSMS.
+  # The API and the Web app can also run from Visual Studio. Inside the compose network they use
+  # the internal SQL port (1433); the 1434 host mapping is only for Visual Studio and SSMS.
   api:
     build:
       context: ./src
@@ -34,7 +32,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - DatabaseProvider=SqlServer
-      - ConnectionStrings__ConexaoPadrao=Server=sqlserver,1433;Database=ColoradoDb;User Id=sa;Password=Colorado@123;TrustServerCertificate=True;
+      - ConnectionStrings__ConexaoPadrao=Server=sqlserver,1433;Database=ColoradoDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
     depends_on:
       sqlserver:
         condition: service_healthy
