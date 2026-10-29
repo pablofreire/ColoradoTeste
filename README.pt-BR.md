@@ -1,5 +1,7 @@
 # Colorado - Cadastro de Clientes
 
+[English](README.md) · **Português**
+
 Solucao para o desafio de Desenvolvedor Fullstack do Grupo Colorado: um CRUD de clientes
 em ASP.NET Core (.NET 6) com duas camadas de apresentacao - uma Web API RESTful e um
 Web App MVC - sobre uma base de Clean Architecture com padrao de repositorio e Unit of Work.
@@ -54,8 +56,15 @@ no startup da API (com retry enquanto o SQL Server fica pronto).
 
 Para dev local e preciso um SQL Server acessivel - o jeito mais simples e subir so o banco do
 compose: `docker compose up -d sqlserver`. O compose publica o SQL em **`localhost,1434`** (porta
-interna 1433 mapeada para 1434 no host, evitando conflito com uma instancia local na 1433). A
-connection string de dev usa `Server=localhost,1434;Database=ColoradoDb;User Id=sa;Password=Colorado@123;TrustServerCertificate=True;`.
+interna 1433 mapeada para 1434 no host, evitando conflito com uma instancia local na 1433).
+
+Nenhuma senha fica versionada. Copie `.env.example` para `.env` e defina `MSSQL_SA_PASSWORD`
+(o compose le esse arquivo). Para rodar a API fora do Docker, grave a connection string em
+user-secrets:
+
+```
+dotnet user-secrets set "ConnectionStrings:ConexaoPadrao" "Server=localhost,1434;Database=ColoradoDb;User Id=sa;Password=<sua MSSQL_SA_PASSWORD>;TrustServerCertificate=True;" --project src/Colorado.Api
+```
 
 ## Como rodar (local)
 
@@ -97,10 +106,10 @@ dotnet ef database update --project src/Colorado.Infraestrutura
 
 ## Como rodar com Docker (SQL Server)
 
-Na raiz `Code/`, com Docker em execucao:
+Na raiz do repositorio, com Docker em execucao e o `.env` criado a partir do `.env.example`:
 
 ```
-docker-compose up --build
+docker compose up --build
 ```
 
 Sobe tres containers: `sqlserver`, `api` (unico que acessa o banco) e `web` (consome a `api`
