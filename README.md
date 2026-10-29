@@ -8,11 +8,11 @@ A customer registry built as the solution to a full-stack developer take-home ch
 - a RESTful Web API that owns persistence;
 - an MVC web app that only talks to that API over HTTP.
 
-The domain, code identifiers and UI are in Portuguese, as the challenge required.
+The domain, code identifiers and UI are in Portuguese.
 
 ## Problem
 
-The challenge asked for customer registration with phone numbers and phone types, validated for Brazilian documents, and exposed both as an API and as a web UI. The solution keeps the two UIs honest about boundaries: the web app has no database access at all, so every rule is enforced once, on the server.
+The application registers customers, their phone numbers and phone types, and validates Brazilian documents (CPF and CNPJ). It is exposed both as a REST API and as a web UI. The design keeps the boundary strict: the web app has no database access at all, so every rule is enforced once, on the server.
 
 ## Key features
 
@@ -61,6 +61,8 @@ Requirements: Docker. The .NET SDK is optional; the build runs with SDK 6 or lat
 cp .env.example .env          # then set MSSQL_SA_PASSWORD
 docker compose up --build
 ```
+
+If you ran an earlier version that had a fixed password, run `docker compose down -v` first. The existing SQL Server volume keeps the old `sa` password.
 
 - API and Swagger: http://localhost:5000/swagger
 - Web app: http://localhost:5002
@@ -119,7 +121,7 @@ dotnet test
 
 ## Roadmap
 
-- Move from .NET 6, which is out of support, to .NET 8 LTS.
+- Move from .NET 6, which is out of support, to .NET 10 LTS.
 - Run the repository tests against SQL Server with Testcontainers in addition to SQLite.
 
 ## License

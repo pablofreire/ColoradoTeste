@@ -113,6 +113,9 @@ Na raiz do repositorio, com Docker em execucao e o `.env` criado a partir do `.e
 docker compose up --build
 ```
 
+Se voce ja rodou uma versao anterior (com senha fixa), execute `docker compose down -v` antes:
+o volume existente do SQL Server guarda a senha antiga do `sa`.
+
 Sobe tres containers: `sqlserver`, `api` (unico que acessa o banco) e `web` (consome a `api`
 via `ApiBaseUrl=http://api:80`). Na rede do compose a API fala com o SQL pela porta interna
 `1433`; o host expoe o SQL em `1434` (so para VS/SSMS). Apos subir:
